@@ -1,15 +1,15 @@
-name: Generate zip file
+name: Generate artifact
 
 on:
   workflow_dispatch:
         
 jobs: 
-  zip-files:
+  upload-artifact:
+    name: "Upload artifact"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/upload-artifact@v2
         with:
-          name: deployable-extension
-          path: /src/
+          path: src/
           
           
