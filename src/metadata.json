@@ -4,5 +4,5 @@
    "description": "Changes position of the notification banner from the default to the right side of the screen.",
    "version": 1,
    "shell-version": [ "3.36" ],
-   "url": "TBD"
+   "url": "https://github.com/brunodrugowick/notification-position-gnome-extension"
 }
