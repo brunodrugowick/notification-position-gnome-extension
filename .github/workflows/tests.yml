@@ -10,6 +10,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: deployable-extension
-          path: ${{ github.workspace }}/src/
+          path: /src/
           
           
