@@ -6,9 +6,9 @@ Changes the notification banner position from the center of the screen to anothe
 
 - [X] Top-right corner of the screen
 - [ ] Preferences screen/menu
-- [ ] Top-right corner of the screen
-- [ ] Top-right corner of the screen
-- [ ] Top-right corner of the screen
+- [ ] Top-left corner of the screen
+- [ ] Bottom-right corner of the screen
+- [ ] Bottom-left corner of the screen
 
 # Thanks to
 
