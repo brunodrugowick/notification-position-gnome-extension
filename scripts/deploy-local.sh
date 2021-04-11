@@ -17,3 +17,4 @@ cp ./src/* ${EXTENSION_PATH}/
 echo "Files copied to ${EXTENSION_PATH}"
 echo ""
 echo "Restart Gnome Shell with ALT+F2, type 'r' and hit ENTER"
+echo ""
