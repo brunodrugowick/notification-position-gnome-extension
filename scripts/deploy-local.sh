@@ -5,6 +5,8 @@ GNOME_EXT_USER_PATH=$HOME"/.local/share/gnome-shell/extensions/"
 
 EXTENSION_PATH=${GNOME_EXT_USER_PATH}${EXTENSION_NAME}
 
+SCRIPT_DIR=$(dirname $0)
+
 # Abort if error
 set -e
 
@@ -19,11 +21,11 @@ rm -r ${EXTENSION_PATH}/* | true
 #glib-compile-schemas ./src/schemas
 
 echo "Files to copy:"
-ls ./src/
+ls ${SCRIPT_DIR}/../src/
 
 # Copy updated files to installation location
 echo "Copying files"
-cp -r ./src/* ${EXTENSION_PATH}/
+cp -r ${SCRIPT_DIR}/../src/* ${EXTENSION_PATH}/
 
 echo "Files copied to ${EXTENSION_PATH}"
 echo ""
