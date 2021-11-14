@@ -2,17 +2,14 @@
 
 // This is a handy import we'll use to grab our extension's object
 const Main = imports.ui.main;
+const { Clutter } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // Like `init()` below, code *here* in the top-level of your script is executed
 // when your extension is loaded. You MUST NOT make any changes to GNOME Shell
 // here and typically you should do nothing but assign variables.
-const PADDING = 20;
-const monitorWidth = Main.layoutManager.primaryMonitor.width;
-const monitorHeight = Main.layoutManager.primaryMonitor.height;
-const messageListWidth = Main.panel.statusArea.dateMenu._messageList.actor.width;
-const messageListHeight = Main.panel.statusArea.dateMenu._messageList.actor.height;
+const _originalBannerAlignment = Main.messageTray.bannerAlignment;
 
 // This function is called once when your extension is loaded, not enabled. This
 // is a good time to setup translations or anything else you only do once.
@@ -23,14 +20,20 @@ function init() {
     log(`initializing ${Me.metadata.name} version ${Me.metadata.version}`);
 }
 
-function left()
-{
-    return - monitorWidth + messageListWidth + PADDING;
+function left() {
+    Main.messageTray.bannerAlignment = Clutter.ActorAlign.START;
 }
 
-function right()
-{
-    return monitorWidth - messageListWidth - PADDING;
+function right() {
+    Main.messageTray.bannerAlignment = Clutter.ActorAlign.END;
+}
+
+function middle() {
+    Main.messageTray.bannerAlignment = Clutter.ActorAlign.CENTER;
+}
+
+function _original() {
+    Main.messageTray.bannerAlignment = _originalBannerAlignment;
 }
 
 // This function could be called after your extension is enabled, which could
@@ -40,8 +43,7 @@ function right()
 // connect signals or modify GNOME Shell's behaviour.
 function enable() {
     log(`enabling ${Me.metadata.name} version ${Me.metadata.version}`);
-
-    Main.messageTray._bannerBin.x = right();
+    right();
 }
 
 // This function could be called after your extension is uninstalled, disabled
@@ -51,7 +53,6 @@ function enable() {
 // doing so is the most common reason extensions are rejected during review!
 function disable() {
     log(`disabling ${Me.metadata.name} version ${Me.metadata.version}`);
-    Main.messageTray._bannerBin.x = 0;
-    Main.messageTray._bannerBin.y = 0;
+    _original();
 }
 

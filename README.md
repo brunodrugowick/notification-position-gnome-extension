@@ -2,13 +2,15 @@
 
 Changes the notification banner position from the center of the screen to another position of your choice.
 
+Code focuses on being AS SIMPLE AS POSSIBLE to do JUST THAT!
+
 # TODO
 
 - [X] Top-right corner of the screen
 - [ ] Preferences screen/menu
 - [ ] Top-left corner of the screen
-- [ ] Bottom-right corner of the screen
-- [ ] Bottom-left corner of the screen
+- [ ] Bottom-right corner of the screen?
+- [ ] Bottom-left corner of the screen?
 
 # Thanks to
 
@@ -16,7 +18,8 @@ I tried to find an extension to solve my problem and ended up find [this](https:
 
 I decided to improve but couldn't find the extension's repository, so I created mine.
 
-> **Note**: as per feedback, there's, indeed, a good extensions that does what I want. It's called [Panel OSD](https://extensions.gnome.org/extension/708/panel-osd/).
+**Note**: as per feedback, there's, indeed, a good extensions that does what I want. It's called [Panel OSD](https://extensions.gnome.org/extension/708/panel-osd/).
+**Note**: there's also [this other awesome extension](https://gitlab.gnome.org/jrahmatzadeh/just-perfection) that does a lot (A LOT!) of things. As per the author's review, I changed my code a little bit, based on his code, so, kudos for him and go check out his extension.
 
 # Deployment to extensions.gnome.org
 
