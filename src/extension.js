@@ -9,8 +9,8 @@ const Me = ExtensionUtils.getCurrentExtension();
 // when your extension is loaded. You MUST NOT make any changes to GNOME Shell
 // here and typically you should do nothing but assign variables.
 const PADDING = 20;
-const monitorWidth = Main.layoutManager.monitors[0].width;
-const monitorHeight = Main.layoutManager.monitors[0].height;
+const monitorWidth = Main.layoutManager.primaryMonitor.width;
+const monitorHeight = Main.layoutManager.primaryMonitor.height;
 const messageListWidth = Main.panel.statusArea.dateMenu._messageList.actor.width;
 const messageListHeight = Main.panel.statusArea.dateMenu._messageList.actor.height;
 
