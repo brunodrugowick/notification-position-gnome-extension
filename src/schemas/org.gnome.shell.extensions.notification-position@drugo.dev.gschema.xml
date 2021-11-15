@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.notification-position@drugo.dev" path="/org/gnome/shell/extensions/notification-position@drugo.dev/">
+    <!-- See also: https://developer.gnome.org/glib/stable/gvariant-format-strings.html -->
+    <key name="banner-position" type="b">
+      <default>true</default>
+    </key>
+  </schema>
+</schemalist>
