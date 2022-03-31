@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Ability to change notification position to the left
 
+## [1.0.5] - 2022-03-31
+- Version on [Gnome Extensions](https://extensions.gnome.org/extension/4105/notification-banner-position/): 6
+- Add support to Gnome 42 (thanks to @rbugajewski)
+
 ## [1.0.4] - 2021-11-14
 - No associated versions on [Gnome Extensions](https://extensions.gnome.org/extension/4105/notification-banner-position/).
 - Code review as per suggestions from [this awesome extension's author](https://gitlab.gnome.org/jrahmatzadeh/just-perfection).
