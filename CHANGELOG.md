@@ -4,15 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2023-03-22
 ### Added
-- Ability to change notification position to the left
+- Version on [Gnome Extensions](https://extensions.gnome.org/extension/4105/notification-banner-position/): 44
+- Support for Gnome 44 from the Gnome extensions website.
 
 ## [1.0.5] - 2022-03-31
+### Added
 - Version on [Gnome Extensions](https://extensions.gnome.org/extension/4105/notification-banner-position/): 6
 - Add support to Gnome 42 (thanks to @rbugajewski)
 
 ## [1.0.4] - 2021-11-14
+### Added
 - No associated versions on [Gnome Extensions](https://extensions.gnome.org/extension/4105/notification-banner-position/).
 - Code review as per suggestions from [this awesome extension's author](https://gitlab.gnome.org/jrahmatzadeh/just-perfection).
 
