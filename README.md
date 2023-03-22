@@ -21,6 +21,11 @@ I decided to improve but couldn't find the extension's repository, so I created 
 **Note**: as per feedback, there's, indeed, a good extensions that does what I want. It's called [Panel OSD](https://extensions.gnome.org/extension/708/panel-osd/).
 **Note**: there's also [this other awesome extension](https://gitlab.gnome.org/jrahmatzadeh/just-perfection) that does a lot (A LOT!) of things. As per the author's review, I changed my code a little bit, based on his code, so, kudos for him and go check out his extension.
 
+# Contributing
+
+- Mind the CHANGELOG.md file.
+- If only supporting a new Gnome version, please match the `version` attribute to the version you're trying to support.
+
 # Deployment to extensions.gnome.org
 
 *_NOTE_*: pending automation preferrably via GitHub Actions
