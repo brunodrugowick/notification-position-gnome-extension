@@ -8,6 +8,8 @@ add_gnome_support() {
 		| jq --arg version "$1" '.version = $version' \
 		> src/metadata.json.tmp # it fails if I write directly to the same file
 	mv src/metadata.json.tmp src/metadata.json
+
+	sed -i '7 i ## [Autoupdate]\n### Added\n- Automatically added support to new Gnome version\n\n' CHANGELOG.md
 }
 
 ROOT_PROJECT_DIR=$(pwd)
