@@ -1,0 +1,21 @@
+name: Check Gnome Releases and Update If Necessary
+
+on:
+  schedule:
+    - cron:  '30 23 * * 4'
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run script to check Gnome releases and add if new
+        run: |
+          ./scripts/auto-update-from-gnome-release.sh
+      
+      - name: Check for modifications and commit to the repo
+        run: |
+          ./scripts/check-for-changes-and-commit.sh
