@@ -24,7 +24,8 @@ I decided to improve but couldn't find the extension's repository, so I created 
 # Contributing
 
 - Mind the CHANGELOG.md file.
-- If only supporting a new Gnome version, please match the `version` attribute to the version you're trying to support.
+- If only supporting a new Gnome version, there's an automation that might take care of it automatically.
+    - If you still want to make a PR, please, match the `version` attribute to the version you're trying to support in `./src/metadata.json`.
 
 # Deployment to extensions.gnome.org
 
