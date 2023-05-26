@@ -9,7 +9,8 @@ add_gnome_support() {
 		> src/metadata.json.tmp # it fails if I write directly to the same file
 	mv src/metadata.json.tmp src/metadata.json
 
-	sed -i '7 i ## [Autoupdate]\n### Added\n- Automatically added support to new Gnome version\n\n' CHANGELOG.md
+        sed -i "7 i ## [Autoupdate]\n### Added\n- Automatically added support to new Gnome ${1} version\n" CHANGELOG.md
+        echo $1 > CURRENT_SUPPORTED_GNOME_VERSION
 }
 
 ROOT_PROJECT_DIR=$(pwd)
