@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Autoupdate]
 ### Added
+- Automatically added support to new Gnome version
+
+
+## [Autoupdate]
+### Added
 - Automatically added support to new Gnome 44.2 version
 
 ## [Autoupdate]
