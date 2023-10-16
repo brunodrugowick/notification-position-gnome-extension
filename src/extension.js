@@ -6,7 +6,9 @@ export default class NotificationPosition {
     // Like `init()` below, code *here* in the top-level of your script is executed
     // when your extension is loaded. You MUST NOT make any changes to GNOME Shell
     // here and typically you should do nothing but assign variables.
-    const _originalBannerAlignment = Main.messageTray.bannerAlignment;
+    constructor() {
+        this._originalBannerAlignment = Main.messageTray.bannerAlignment;
+    }
 
     left() {
         Main.messageTray.bannerAlignment = Clutter.ActorAlign.START;
@@ -21,7 +23,7 @@ export default class NotificationPosition {
     }
 
     _original() {
-        Main.messageTray.bannerAlignment = _originalBannerAlignment;
+        Main.messageTray.bannerAlignment = this._originalBannerAlignment;
     }
 
     // This function could be called after your extension is enabled, which could
@@ -30,7 +32,7 @@ export default class NotificationPosition {
     // This is when you setup any UI for your extension, change existing widgets,
     // connect signals or modify GNOME Shell's behaviour.
     enable() {
-        right();
+        this.right();
     }
 
     // This function could be called after your extension is uninstalled, disabled
@@ -39,6 +41,6 @@ export default class NotificationPosition {
     // Anything you created, modified or setup in enable() MUST be undone here. Not
     // doing so is the most common reason extensions are rejected during review!
     disable() {
-        _original();
+        this._original();
     }
 }
