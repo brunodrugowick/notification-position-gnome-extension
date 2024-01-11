@@ -2,9 +2,10 @@
   "uuid": "notification-position@drugo.dev",
   "name": "Notification Banner Position",
   "description": "Changes position of the notification banner from the default to the right side of the screen.",
-  "version": "45",
+  "version": "46",
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "url": "https://github.com/brunodrugowick/notification-position-gnome-extension"
 }
