@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatically added support to new Gnome version
 
 
+## [Autoupdate]
+### Added
+- Automatically added support to new Gnome version
+
+
 ## [2.0.0] - 2023-10-03
 ### Added
 - Support for Gnome 45 (hopefully)
