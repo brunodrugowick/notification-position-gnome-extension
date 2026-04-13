@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-04-12
+### Added
+- A top-panel menu to switch notification banner positions without opening preferences
+- Support for top-left, bottom-left and bottom-right banner placement
+- An example notification whenever the position changes
+### Changed
+- Default banner position remains top-right, but it is now managed through the panel menu
+
 ## [Autoupdate]
 ### Added
 - Automatically added support to new Gnome version

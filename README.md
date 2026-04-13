@@ -7,10 +7,12 @@ Code focuses on being AS SIMPLE AS POSSIBLE to do JUST THAT!
 # TODO
 
 - [X] Top-right corner of the screen
-- [ ] Preferences screen/menu
-- [ ] Top-left corner of the screen
-- [ ] Bottom-right corner of the screen?
-- [ ] Bottom-left corner of the screen?
+- [X] Preferences screen/menu
+- [X] Top-left corner of the screen
+- [X] Bottom-right corner of the screen
+- [X] Bottom-left corner of the screen
+
+The extension now adds a simple menu to the top panel so you can switch the banner position quickly and preview it with a sample notification.
 
 # Thanks to
 
@@ -38,4 +40,3 @@ After merging to `master`:
 - Click `Run workflow` (you may need to refresh the page to see the new execution);
 
 The artifact to be uploaded to [Gnome Extensions](https://extensions.gnome.org/upload/) is uploaded to the Workflow you just initiated.
-
