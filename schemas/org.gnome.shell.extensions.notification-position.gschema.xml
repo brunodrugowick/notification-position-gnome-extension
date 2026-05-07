@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.notification-position" path="/org/gnome/shell/extensions/notification-position/">
+    <key type="b" name="show-indicator">
+      <default>true</default>
+      <summary>Show indicator</summary>
+      <description>Whether to show the notification position indicator in the panel</description>
+    </key>
+  </schema>
+</schemalist>
