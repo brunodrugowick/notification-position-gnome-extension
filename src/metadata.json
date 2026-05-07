@@ -11,5 +11,6 @@
     "49",
     "50"
   ],
-  "url": "https://github.com/brunodrugowick/notification-position-gnome-extension"
+  "url": "https://github.com/brunodrugowick/notification-position-gnome-extension",
+  "gschema-id": "org.gnome.shell.extensions.notification-position"
 }
