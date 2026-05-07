@@ -1,6 +1,5 @@
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
-import Gio from 'gi://Gio';
 import St from 'gi://St';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -45,7 +44,7 @@ class NotificationPositionIndicator extends PanelMenu.Button {
         GObject.registerClass(this);
     }
 
-    constructor(onSelectPosition, onToggleIndicator, showIndicator) {
+    constructor(onSelectPosition, onToggleIndicator) {
         super(0.0, 'Notification Position');
 
         this._onSelectPosition = onSelectPosition;
@@ -67,7 +66,7 @@ class NotificationPositionIndicator extends PanelMenu.Button {
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        this._showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', showIndicator);
+        this._showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', true);
         this._showIndicatorItem.connect('toggled', (_item, state) => this._onToggleIndicator(state));
         this.menu.addMenuItem(this._showIndicatorItem);
     }
@@ -98,7 +97,6 @@ export default class NotificationPosition extends Extension {
         this._originalBannerBinAlignment = this._getBannerBin()?.y_align ?? Clutter.ActorAlign.START;
         this._currentPosition = 'top-right';
         this._indicator = null;
-        this._settings = null;
     }
 
     _getBannerBin() {
@@ -132,41 +130,27 @@ export default class NotificationPosition extends Extension {
     }
 
     _createIndicator() {
-        const showIndicator = this._settings.get_boolean('show-indicator');
         this._indicator = new NotificationPositionIndicator(
             positionId => {
                 this._setPosition(positionId, true);
             },
             state => {
-                this._settings.set_boolean('show-indicator', state);
-                if (!state)
-                    this._syncIndicator();
-            },
-            showIndicator
+                if (!state) {
+                    this._indicator?.destroy();
+                    this._indicator = null;
+                }
+            }
         );
         this._indicator.setSelected(this._currentPosition);
         Main.panel.addToStatusArea('notification-position', this._indicator);
     }
 
     _syncIndicator() {
-        const showIndicator = this._settings.get_boolean('show-indicator');
-
-        if (showIndicator && !this._indicator) {
-            this._createIndicator();
-            return;
-        }
-
-        if (!showIndicator && this._indicator) {
-            this._indicator.destroy();
-            this._indicator = null;
-        }
+        // Placeholder - not used anymore
     }
 
     _initSettings() {
-        this._settings = this.getSettings();
-        this._settings.connect('changed::show-indicator', () => {
-            this._syncIndicator();
-        });
+        // Placeholder - not used anymore
     }
 
     // This function could be called after your extension is enabled, which could
@@ -175,8 +159,7 @@ export default class NotificationPosition extends Extension {
     // This is when you setup any UI for your extension, change existing widgets,
     // connect signals or modify GNOME Shell's behaviour.
     enable() {
-        this._initSettings();
-        this._syncIndicator();
+        this._createIndicator();
         this._setPosition(this._currentPosition);
     }
 
@@ -189,6 +172,5 @@ export default class NotificationPosition extends Extension {
         this._indicator?.destroy();
         this._indicator = null;
         this._original();
-        this._settings = null;
     }
 }
