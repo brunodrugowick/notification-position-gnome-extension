@@ -44,10 +44,11 @@ class NotificationPositionIndicator extends PanelMenu.Button {
         GObject.registerClass(this);
     }
 
-    constructor(onSelectPosition) {
+    constructor(onSelectPosition, onToggleIndicator) {
         super(0.0, 'Notification Position');
 
         this._onSelectPosition = onSelectPosition;
+        this._onToggleIndicator = onToggleIndicator;
         this._items = new Map();
 
         const icon = new St.Icon({
@@ -62,6 +63,12 @@ class NotificationPositionIndicator extends PanelMenu.Button {
             this.menu.addMenuItem(item);
             this._items.set(position.id, item);
         }
+
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+        this._showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', true);
+        this._showIndicatorItem.connect('toggled', (_item, state) => this._onToggleIndicator(state));
+        this.menu.addMenuItem(this._showIndicatorItem);
     }
 
     setSelected(positionId) {
@@ -72,6 +79,10 @@ class NotificationPositionIndicator extends PanelMenu.Button {
                     : PopupMenu.Ornament.NONE
             );
         }
+    }
+
+    setShowIndicator(state) {
+        this._showIndicatorItem.setToggleState(state);
     }
 }
 
@@ -119,9 +130,17 @@ export default class NotificationPosition extends Extension {
     }
 
     _createIndicator() {
-        this._indicator = new NotificationPositionIndicator(positionId => {
-            this._setPosition(positionId, true);
-        });
+        this._indicator = new NotificationPositionIndicator(
+            positionId => {
+                this._setPosition(positionId, true);
+            },
+            state => {
+                if (!state) {
+                    this._indicator?.destroy();
+                    this._indicator = null;
+                }
+            }
+        );
         this._indicator.setSelected(this._currentPosition);
         Main.panel.addToStatusArea('notification-position', this._indicator);
     }

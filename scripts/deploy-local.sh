@@ -17,8 +17,8 @@ mkdir -p ${EXTENSION_PATH}
 echo "Removing whatever is there"
 rm -r ${EXTENSION_PATH}/* | true
 
-#echo "Compiling schemas"
-#glib-compile-schemas ./src/schemas
+echo "Compiling schemas"
+glib-compile-schemas ${SCRIPT_DIR}/../schemas
 
 echo "Files to copy:"
 ls ${SCRIPT_DIR}/../src/
@@ -26,6 +26,7 @@ ls ${SCRIPT_DIR}/../src/
 # Copy updated files to installation location
 echo "Copying files"
 cp -r ${SCRIPT_DIR}/../src/* ${EXTENSION_PATH}/
+cp -r ${SCRIPT_DIR}/../schemas ${EXTENSION_PATH}/
 
 echo "Files copied to ${EXTENSION_PATH}"
 echo ""
