@@ -1,0 +1,14 @@
+<schemalist>
+  <schema id="org.gnome.shell.extensions.notification-position" path="/org/gnome/shell/extensions/notification-position/">
+    <key name="show-indicator" type="b">
+      <default>true</default>
+      <summary>Show the top-panel indicator</summary>
+      <description>Whether to show the notification position menu in the top panel.</description>
+    </key>
+    <key name="position" type="s">
+      <default>'top-right'</default>
+      <summary>Notification banner position</summary>
+      <description>The selected notification banner position.</description>
+    </key>
+  </schema>
+</schemalist>

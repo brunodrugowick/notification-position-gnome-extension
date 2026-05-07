@@ -6,6 +6,24 @@ GNOME_EXT_USER_PATH=$HOME"/.local/share/gnome-shell/extensions/"
 EXTENSION_PATH=${GNOME_EXT_USER_PATH}${EXTENSION_NAME}
 
 SCRIPT_DIR=$(dirname $0)
+ROOT_DIR=${SCRIPT_DIR}/..
+TARGET_LINE=$1
+
+if [[ -z "${TARGET_LINE}" || "${TARGET_LINE}" == "auto" ]]; then
+    GNOME_MAJOR_VERSION=$(gnome-shell --version | grep -oE '[0-9]+' | head -n 1)
+    if [[ ${GNOME_MAJOR_VERSION} -ge 45 ]]; then
+        TARGET_LINE="gnome45"
+    else
+        TARGET_LINE="legacy"
+    fi
+fi
+
+SOURCE_PATH=${ROOT_DIR}/src/${TARGET_LINE}
+
+if [[ ! -d "${SOURCE_PATH}" ]]; then
+    echo "Unknown extension line '${TARGET_LINE}'. Use 'legacy', 'gnome45' or 'auto'."
+    exit 1
+fi
 
 # Abort if error
 set -e
@@ -21,7 +39,7 @@ echo "Compiling schemas"
 glib-compile-schemas ${SCRIPT_DIR}/../schemas
 
 echo "Files to copy:"
-ls ${SCRIPT_DIR}/../src/
+ls ${SOURCE_PATH}
 
 # Copy updated files to installation location
 echo "Copying files"

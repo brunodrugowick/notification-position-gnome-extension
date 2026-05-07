@@ -1,4 +1,5 @@
 import Clutter from 'gi://Clutter';
+import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -44,7 +45,7 @@ class NotificationPositionIndicator extends PanelMenu.Button {
         GObject.registerClass(this);
     }
 
-    constructor(onSelectPosition, onToggleIndicator) {
+    constructor(indicatorIcon, onSelectPosition, onToggleIndicator, showIndicator) {
         super(0.0, 'Notification Position');
 
         this._onSelectPosition = onSelectPosition;
@@ -52,23 +53,23 @@ class NotificationPositionIndicator extends PanelMenu.Button {
         this._items = new Map();
 
         const icon = new St.Icon({
-            icon_name: 'preferences-system-symbolic',
+            gicon: indicatorIcon,
             style_class: 'system-status-icon',
         });
         this.add_child(icon);
 
         for (const position of POSITIONS) {
             const item = new PopupMenu.PopupMenuItem(position.label);
-            item.connect('activate', () => this._onSelectPosition(position.id));
+            item.connect('activate', () => this._onSelectPosition(position.id, true));
             this.menu.addMenuItem(item);
             this._items.set(position.id, item);
         }
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        this._showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', true);
-        this._showIndicatorItem.connect('toggled', (_item, state) => this._onToggleIndicator(state));
-        this.menu.addMenuItem(this._showIndicatorItem);
+        const showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', showIndicator);
+        showIndicatorItem.connect('toggled', (_item, state) => this._onToggleIndicator(state));
+        this.menu.addMenuItem(showIndicatorItem);
     }
 
     setSelected(positionId) {
@@ -97,6 +98,10 @@ export default class NotificationPosition extends Extension {
         this._originalBannerBinAlignment = this._getBannerBin()?.y_align ?? Clutter.ActorAlign.START;
         this._currentPosition = 'top-right';
         this._indicator = null;
+        this._settings = null;
+        this._settingsChangedId = 0;
+        this._positionChangedId = 0;
+        this._showExampleAfterPositionChange = false;
     }
 
     _getBannerBin() {
@@ -126,23 +131,54 @@ export default class NotificationPosition extends Extension {
         this._indicator?.setSelected(position.id);
 
         if (showExample)
-            Main.notify('Notification position changed', `Banner moved to ${position.label}.`);
+            this._showExampleNotification(position);
+    }
+
+    _showExampleNotification(position) {
+        Main.notify('Notification position changed', `Banner moved to ${position.label}.`);
     }
 
     _createIndicator() {
+        const icon = new Gio.FileIcon({
+            file: this.dir.get_child('icons').get_child('notification-position-symbolic.svg'),
+        });
         this._indicator = new NotificationPositionIndicator(
-            positionId => {
-                this._setPosition(positionId, true);
-            },
-            state => {
-                if (!state) {
-                    this._indicator?.destroy();
-                    this._indicator = null;
-                }
-            }
+            icon,
+            (positionId, showExample) => this._selectPosition(positionId, showExample),
+            showIndicator => this._settings.set_boolean('show-indicator', showIndicator),
+            this._settings.get_boolean('show-indicator')
         );
         this._indicator.setSelected(this._currentPosition);
         Main.panel.addToStatusArea('notification-position', this._indicator);
+    }
+
+    _selectPosition(positionId, showExample = false) {
+        if (this._settings.get_string('position') === positionId) {
+            this._setPosition(positionId, showExample);
+            return;
+        }
+
+        this._showExampleAfterPositionChange = showExample;
+        this._settings.set_string('position', positionId);
+    }
+
+    _syncPosition() {
+        this._setPosition(this._settings.get_string('position'), this._showExampleAfterPositionChange);
+        this._showExampleAfterPositionChange = false;
+    }
+
+    _syncIndicator() {
+        const showIndicator = this._settings.get_boolean('show-indicator');
+
+        if (showIndicator && !this._indicator) {
+            this._createIndicator();
+            return;
+        }
+
+        if (!showIndicator && this._indicator) {
+            this._indicator.destroy();
+            this._indicator = null;
+        }
     }
 
     // This function could be called after your extension is enabled, which could
@@ -151,8 +187,15 @@ export default class NotificationPosition extends Extension {
     // This is when you setup any UI for your extension, change existing widgets,
     // connect signals or modify GNOME Shell's behaviour.
     enable() {
-        this._createIndicator();
-        this._setPosition(this._currentPosition);
+        this._settings = this.getSettings();
+        this._settingsChangedId = this._settings.connect('changed::show-indicator', () => {
+            this._syncIndicator();
+        });
+        this._positionChangedId = this._settings.connect('changed::position', () => {
+            this._syncPosition();
+        });
+        this._syncIndicator();
+        this._syncPosition();
     }
 
     // This function could be called after your extension is uninstalled, disabled
@@ -163,6 +206,15 @@ export default class NotificationPosition extends Extension {
     disable() {
         this._indicator?.destroy();
         this._indicator = null;
+        if (this._settingsChangedId) {
+            this._settings.disconnect(this._settingsChangedId);
+            this._settingsChangedId = 0;
+        }
+        if (this._positionChangedId) {
+            this._settings.disconnect(this._positionChangedId);
+            this._positionChangedId = 0;
+        }
+        this._settings = null;
         this._original();
     }
 }
