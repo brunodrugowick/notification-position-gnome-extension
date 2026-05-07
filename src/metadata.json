@@ -2,7 +2,7 @@
   "uuid": "notification-position@drugo.dev",
   "name": "Notification Banner Position",
   "description": "Changes the notification banner position with a quick menu in the top panel.",
-  "version": "51",
+  "version": "52",
   "shell-version": [
     "45",
     "46",
