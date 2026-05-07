@@ -62,6 +62,12 @@ class NotificationPositionIndicator extends PanelMenu.Button {
             this.menu.addMenuItem(item);
             this._items.set(position.id, item);
         }
+
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+        const showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', showIndicator);
+        showIndicatorItem.connect('toggled', (_item, state) => this._onToggleIndicator(state));
+        this.menu.addMenuItem(showIndicatorItem);
     }
 
     setSelected(positionId) {
@@ -124,6 +130,20 @@ export default class NotificationPosition extends Extension {
         });
         this._indicator.setSelected(this._currentPosition);
         Main.panel.addToStatusArea('notification-position', this._indicator);
+    }
+
+    _syncIndicator() {
+        const showIndicator = this._settings.get_boolean('show-indicator');
+
+        if (showIndicator && !this._indicator) {
+            this._createIndicator();
+            return;
+        }
+
+        if (!showIndicator && this._indicator) {
+            this._indicator.destroy();
+            this._indicator = null;
+        }
     }
 
     // This function could be called after your extension is enabled, which could
