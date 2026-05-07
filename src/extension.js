@@ -145,14 +145,6 @@ export default class NotificationPosition extends Extension {
         Main.panel.addToStatusArea('notification-position', this._indicator);
     }
 
-    _syncIndicator() {
-        // Placeholder - not used anymore
-    }
-
-    _initSettings() {
-        // Placeholder - not used anymore
-    }
-
     // This function could be called after your extension is enabled, which could
     // be done from GNOME Tweaks, when you log in or when the screen is unlocked.
     //
