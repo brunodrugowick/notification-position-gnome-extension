@@ -4,6 +4,7 @@ const {Clutter, Gio, GObject, St} = imports.gi;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+const Slider = imports.ui.slider.Slider;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
@@ -44,11 +45,11 @@ const POSITIONS = [
 
 const NotificationPositionIndicator = GObject.registerClass(
 class NotificationPositionIndicator extends PanelMenu.Button {
-    _init(icon, onSelectPosition, onToggleIndicator, showIndicator) {
+    _init(icon, onSelectPosition, settings) {
         super._init(0.0, 'Notification Position');
 
         this._onSelectPosition = onSelectPosition;
-        this._onToggleIndicator = onToggleIndicator;
+        this._settings = settings;
         this._items = new Map();
 
         const panelIcon = new St.Icon({
@@ -66,8 +67,26 @@ class NotificationPositionIndicator extends PanelMenu.Button {
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        const showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', showIndicator);
-        showIndicatorItem.connect('toggled', (_item, state) => this._onToggleIndicator(state));
+        const marginItem = new PopupMenu.PopupBaseMenuItem({ activate: false });
+        const marginBoxLayout = new St.BoxLayout({ vertical: true, x_expand: true });
+        const marginLabel = new St.Label({ text: 'Vertical Margin' });
+        marginBoxLayout.add_child(marginLabel);
+        
+        const slider = new Slider(this._settings.get_int('vertical-margin') / 200.0);
+        slider.connect('notify::value', () => {
+            this._settings.set_int('vertical-margin', Math.round(slider.value * 200));
+        });
+        this._settings.connect('changed::vertical-margin', () => {
+            slider.value = this._settings.get_int('vertical-margin') / 200.0;
+        });
+        marginBoxLayout.add_child(slider);
+        marginItem.add_child(marginBoxLayout);
+        this.menu.addMenuItem(marginItem);
+
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+        const showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', this._settings.get_boolean('show-indicator'));
+        showIndicatorItem.connect('toggled', (_item, state) => this._settings.set_boolean('show-indicator', state));
         this.menu.addMenuItem(showIndicatorItem);
     }
 
@@ -86,11 +105,16 @@ let _originalBannerAlignment;
 let _originalBannerBinAlignment;
 let _originalBannerBinX;
 let _originalBannerBinWidth;
+let _originalMarginTop;
+let _originalMarginBottom;
+let _originalMarginLeft;
+let _originalMarginRight;
 let _currentPosition = 'top-right';
 let _indicator = null;
 let _settings = null;
 let _settingsChangedId = 0;
 let _positionChangedId = 0;
+let _marginChangedId = 0;
 let _showExampleAfterPositionChange = false;
 
 function _getBannerBin() {
@@ -105,6 +129,10 @@ function _original() {
         bannerBin.y_align = _originalBannerBinAlignment;
         bannerBin.x = _originalBannerBinX;
         bannerBin.width = _originalBannerBinWidth;
+        bannerBin.margin_top = _originalMarginTop;
+        bannerBin.margin_bottom = _originalMarginBottom;
+        bannerBin.margin_left = _originalMarginLeft;
+        bannerBin.margin_right = _originalMarginRight;
     }
 }
 
@@ -118,6 +146,23 @@ function _setPosition(positionId, showExample = false) {
         Main.messageTray.bannerAlignment = Clutter.ActorAlign.START;
         _setBannerBinX(position);
         bannerBin.y_align = position.yAlign;
+        
+        const verticalMargin = _settings.get_int('vertical-margin');
+        const SIDE_MARGIN = 20;
+
+        bannerBin.margin_left = SIDE_MARGIN;
+        bannerBin.margin_right = SIDE_MARGIN;
+        
+        if (position.yAlign === Clutter.ActorAlign.START) {
+            bannerBin.margin_top = verticalMargin;
+            bannerBin.margin_bottom = 0;
+        } else if (position.yAlign === Clutter.ActorAlign.END) {
+            bannerBin.margin_top = 0;
+            bannerBin.margin_bottom = verticalMargin;
+        } else {
+            bannerBin.margin_top = verticalMargin;
+            bannerBin.margin_bottom = verticalMargin;
+        }
     } else {
         Main.messageTray.bannerAlignment = position.xAlign;
     }
@@ -168,8 +213,7 @@ function _createIndicator() {
     _indicator = new NotificationPositionIndicator(
         icon,
         (positionId, showExample) => _selectPosition(positionId, showExample),
-        showIndicator => _settings.set_boolean('show-indicator', showIndicator),
-        _settings.get_boolean('show-indicator')
+        _settings
     );
     _indicator.setSelected(_currentPosition);
     Main.panel.addToStatusArea('notification-position', _indicator);
@@ -218,6 +262,12 @@ function enable() {
     _originalBannerBinAlignment = bannerBin?.y_align ?? Clutter.ActorAlign.START;
     _originalBannerBinX = bannerBin?.x ?? 0;
     _originalBannerBinWidth = bannerBin?.width ?? 0;
+    _originalMarginTop = bannerBin?.margin_top ?? 0;
+    _originalMarginBottom = bannerBin?.margin_bottom ?? 0;
+    _originalMarginLeft = bannerBin?.margin_left ?? 0;
+    _originalMarginRight = bannerBin?.margin_right ?? 0;
+    
+    _marginChangedId = _settings.connect('changed::vertical-margin', _syncPosition);
     _syncIndicator();
     _syncPosition();
 }
@@ -233,6 +283,10 @@ function disable() {
     if (_positionChangedId) {
         _settings.disconnect(_positionChangedId);
         _positionChangedId = 0;
+    }
+    if (_marginChangedId) {
+        _settings.disconnect(_marginChangedId);
+        _marginChangedId = 0;
     }
     _settings = null;
     _original();

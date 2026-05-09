@@ -10,5 +10,10 @@
       <summary>Notification banner position</summary>
       <description>The selected notification banner position.</description>
     </key>
+    <key name="vertical-margin" type="i">
+      <default>10</default>
+      <summary>Vertical margin</summary>
+      <description>Distance from top or bottom</description>
+    </key>
   </schema>
 </schemalist>

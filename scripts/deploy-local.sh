@@ -36,15 +36,14 @@ echo "Removing whatever is there"
 rm -r ${EXTENSION_PATH}/* | true
 
 echo "Compiling schemas"
-glib-compile-schemas ${SCRIPT_DIR}/../schemas
+glib-compile-schemas ${SOURCE_PATH}/schemas
 
 echo "Files to copy:"
 ls ${SOURCE_PATH}
 
 # Copy updated files to installation location
 echo "Copying files"
-cp -r ${SCRIPT_DIR}/../src/* ${EXTENSION_PATH}/
-cp -r ${SCRIPT_DIR}/../schemas ${EXTENSION_PATH}/
+cp -r ${SOURCE_PATH}/* ${EXTENSION_PATH}/
 
 echo "Files copied to ${EXTENSION_PATH}"
 echo ""

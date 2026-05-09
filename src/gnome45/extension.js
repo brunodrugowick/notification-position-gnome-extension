@@ -6,6 +6,7 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import {Slider} from 'resource:///org/gnome/shell/ui/slider.js';
 
 const POSITIONS = [
     {
@@ -45,11 +46,11 @@ class NotificationPositionIndicator extends PanelMenu.Button {
         GObject.registerClass(this);
     }
 
-    constructor(indicatorIcon, onSelectPosition, onToggleIndicator, showIndicator) {
+    constructor(indicatorIcon, onSelectPosition, settings) {
         super(0.0, 'Notification Position');
 
         this._onSelectPosition = onSelectPosition;
-        this._onToggleIndicator = onToggleIndicator;
+        this._settings = settings;
         this._items = new Map();
 
         const icon = new St.Icon({
@@ -67,9 +68,27 @@ class NotificationPositionIndicator extends PanelMenu.Button {
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        const showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', showIndicator);
-        showIndicatorItem.connect('toggled', (_item, state) => this._onToggleIndicator(state));
-        this.menu.addMenuItem(showIndicatorItem);
+        const marginItem = new PopupMenu.PopupBaseMenuItem({ activate: false });
+        const marginBoxLayout = new St.BoxLayout({ vertical: true, x_expand: true });
+        const marginLabel = new St.Label({ text: 'Vertical Margin' });
+        marginBoxLayout.add_child(marginLabel);
+        
+        const slider = new Slider(this._settings.get_int('vertical-margin') / 200.0);
+        slider.connect('notify::value', () => {
+            this._settings.set_int('vertical-margin', Math.round(slider.value * 200));
+        });
+        this._settings.connect('changed::vertical-margin', () => {
+            slider.value = this._settings.get_int('vertical-margin') / 200.0;
+        });
+        marginBoxLayout.add_child(slider);
+        marginItem.add_child(marginBoxLayout);
+        this.menu.addMenuItem(marginItem);
+
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+        this._showIndicatorItem = new PopupMenu.PopupSwitchMenuItem('Show Tray Icon', this._settings.get_boolean('show-indicator'));
+        this._showIndicatorItem.connect('toggled', (_item, state) => this._settings.set_boolean('show-indicator', state));
+        this.menu.addMenuItem(this._showIndicatorItem);
     }
 
     setSelected(positionId) {
@@ -96,11 +115,18 @@ export default class NotificationPosition extends Extension {
         super(metadata);
         this._originalBannerAlignment = Main.messageTray.bannerAlignment;
         this._originalBannerBinAlignment = this._getBannerBin()?.y_align ?? Clutter.ActorAlign.START;
+        const bannerBin = this._getBannerBin();
+        this._originalMarginTop = bannerBin?.margin_top ?? 0;
+        this._originalMarginBottom = bannerBin?.margin_bottom ?? 0;
+        this._originalMarginLeft = bannerBin?.margin_left ?? 0;
+        this._originalMarginRight = bannerBin?.margin_right ?? 0;
+        
         this._currentPosition = 'top-right';
         this._indicator = null;
         this._settings = null;
         this._settingsChangedId = 0;
         this._positionChangedId = 0;
+        this._marginChangedId = 0;
         this._showExampleAfterPositionChange = false;
     }
 
@@ -112,8 +138,13 @@ export default class NotificationPosition extends Extension {
         Main.messageTray.bannerAlignment = this._originalBannerAlignment;
 
         const bannerBin = this._getBannerBin();
-        if (bannerBin)
+        if (bannerBin) {
             bannerBin.y_align = this._originalBannerBinAlignment;
+            bannerBin.margin_top = this._originalMarginTop;
+            bannerBin.margin_bottom = this._originalMarginBottom;
+            bannerBin.margin_left = this._originalMarginLeft;
+            bannerBin.margin_right = this._originalMarginRight;
+        }
     }
 
     _setPosition(positionId, showExample = false) {
@@ -124,8 +155,26 @@ export default class NotificationPosition extends Extension {
         Main.messageTray.bannerAlignment = position.xAlign;
 
         const bannerBin = this._getBannerBin();
-        if (bannerBin)
+        if (bannerBin) {
             bannerBin.y_align = position.yAlign;
+            
+            const verticalMargin = this._settings.get_int('vertical-margin');
+            const SIDE_MARGIN = 20;
+
+            bannerBin.margin_left = SIDE_MARGIN;
+            bannerBin.margin_right = SIDE_MARGIN;
+            
+            if (position.yAlign === Clutter.ActorAlign.START) {
+                bannerBin.margin_top = verticalMargin;
+                bannerBin.margin_bottom = 0;
+            } else if (position.yAlign === Clutter.ActorAlign.END) {
+                bannerBin.margin_top = 0;
+                bannerBin.margin_bottom = verticalMargin;
+            } else {
+                bannerBin.margin_top = verticalMargin;
+                bannerBin.margin_bottom = verticalMargin;
+            }
+        }
 
         this._currentPosition = position.id;
         this._indicator?.setSelected(position.id);
@@ -145,8 +194,7 @@ export default class NotificationPosition extends Extension {
         this._indicator = new NotificationPositionIndicator(
             icon,
             (positionId, showExample) => this._selectPosition(positionId, showExample),
-            showIndicator => this._settings.set_boolean('show-indicator', showIndicator),
-            this._settings.get_boolean('show-indicator')
+            this._settings
         );
         this._indicator.setSelected(this._currentPosition);
         Main.panel.addToStatusArea('notification-position', this._indicator);
@@ -194,6 +242,9 @@ export default class NotificationPosition extends Extension {
         this._positionChangedId = this._settings.connect('changed::position', () => {
             this._syncPosition();
         });
+        this._marginChangedId = this._settings.connect('changed::vertical-margin', () => {
+            this._syncPosition();
+        });
         this._syncIndicator();
         this._syncPosition();
     }
@@ -213,6 +264,10 @@ export default class NotificationPosition extends Extension {
         if (this._positionChangedId) {
             this._settings.disconnect(this._positionChangedId);
             this._positionChangedId = 0;
+        }
+        if (this._marginChangedId) {
+            this._settings.disconnect(this._marginChangedId);
+            this._marginChangedId = 0;
         }
         this._settings = null;
         this._original();

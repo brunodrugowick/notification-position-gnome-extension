@@ -58,6 +58,9 @@ function buildPrefsWidget() {
     settings.connect('changed::position', syncPosition);
     syncPosition();
 
+    _append(box, _buildSectionTitle('Vertical margin'));
+    _append(box, _buildMarginRow(settings));
+
     _append(box, _buildSectionTitle('Panel menu'));
     _append(box, _buildSwitchRow(settings));
 
@@ -129,6 +132,36 @@ function _buildSwitchRow(settings) {
     _append(row, label);
     _append(row, toggle);
 
+    return row;
+}
+
+function _buildMarginRow(settings) {
+    const row = new Gtk.Box({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        spacing: 18,
+        margin_top: 6,
+        margin_bottom: 6,
+        margin_start: 6,
+        margin_end: 6,
+    });
+    const label = new Gtk.Label({
+        label: 'Distance from top or bottom of the screen',
+        halign: Gtk.Align.START,
+        xalign: 0,
+        hexpand: true,
+    });
+    const spin = new Gtk.SpinButton({
+        valign: Gtk.Align.CENTER,
+        adjustment: new Gtk.Adjustment({
+            lower: 0,
+            upper: 200,
+            step_increment: 1,
+        }),
+    });
+    settings.bind('vertical-margin', spin.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
+    
+    _append(row, label);
+    _append(row, spin);
     return row;
 }
 

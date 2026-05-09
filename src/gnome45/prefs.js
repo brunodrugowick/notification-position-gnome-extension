@@ -1,5 +1,6 @@
 import Gio from 'gi://Gio';
 import Adw from 'gi://Adw';
+import Gtk from 'gi://Gtk';
 
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
@@ -19,24 +20,52 @@ export default class NotificationPositionPreferences extends ExtensionPreference
         const positionGroup = new Adw.PreferencesGroup({
             title: 'Notification position',
         });
-        const rows = new Map();
 
+        const positionModel = new Gtk.StringList();
         for (const [id, label] of POSITIONS) {
-            const row = new Adw.ActionRow({title: label});
-            row.activatable = true;
-            row.connect('activated', () => settings.set_string('position', id));
-            rows.set(id, row);
-            positionGroup.add(row);
+            positionModel.append(label);
         }
+
+        const positionRow = new Adw.ComboRow({
+            title: 'Position',
+            model: positionModel,
+        });
 
         const syncPosition = () => {
             const selected = settings.get_string('position');
-            for (const [id, row] of rows.entries()) {
-                row.subtitle = id === selected ? 'Selected' : '';
+            const selectedIndex = POSITIONS.findIndex(([id]) => id === selected);
+            if (selectedIndex !== -1 && positionRow.selected !== selectedIndex) {
+                positionRow.selected = selectedIndex;
             }
         };
+
+        positionRow.connect('notify::selected', () => {
+            const selectedIndex = positionRow.selected;
+            if (selectedIndex >= 0 && selectedIndex < POSITIONS.length) {
+                settings.set_string('position', POSITIONS[selectedIndex][0]);
+            }
+        });
+
         settings.connect('changed::position', syncPosition);
         syncPosition();
+
+        positionGroup.add(positionRow);
+
+        const marginRow = new Adw.ActionRow({
+            title: 'Vertical margin',
+            subtitle: 'Distance from top or bottom of the screen',
+        });
+        const marginSpin = new Gtk.SpinButton({
+            valign: Gtk.Align.CENTER,
+            adjustment: new Gtk.Adjustment({
+                lower: 0,
+                upper: 200,
+                step_increment: 1,
+            }),
+        });
+        settings.bind('vertical-margin', marginSpin.adjustment, 'value', Gio.SettingsBindFlags.DEFAULT);
+        marginRow.add_suffix(marginSpin);
+        positionGroup.add(marginRow);
 
         const panelGroup = new Adw.PreferencesGroup({
             title: 'Panel menu',
