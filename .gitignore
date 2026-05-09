@@ -1,2 +1,4 @@
 *.patch
 *.idea
+/schemas/gschemas.compiled
+/src/legacy/schemas/gschemas.compiled
