@@ -33,7 +33,7 @@ jobs:
 
       - name: Copy extension files
         run: |
-          cp -r src/${{ matrix.target }}/* build/${{ matrix.target }}/
+          cp -r src/${{ matrix.target }}/. build/${{ matrix.target }}/
 
       - name: Copy shared schemas
         run: |
@@ -42,6 +42,10 @@ jobs:
       - name: Compile schemas
         run: |
           glib-compile-schemas build/${{ matrix.target }}/schemas
+
+      - name: Debug build contents
+        run: |
+          find build/${{ matrix.target }}
 
       - name: Create ZIP
         run: |

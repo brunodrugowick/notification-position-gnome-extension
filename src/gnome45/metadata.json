@@ -3,7 +3,6 @@
   "name": "Notification Banner Position",
   "description": "Changes the notification banner position with a quick menu in the top panel.",
   "version": "53",
-  "settings-schema": "org.gnome.shell.extensions.notification-position",
   "shell-version": [
     "45",
     "46",
