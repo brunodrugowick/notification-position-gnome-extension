@@ -1,51 +1,49 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-EXTENSION_NAME="notification-position@drugo.dev"
-GNOME_EXT_USER_PATH=$HOME"/.local/share/gnome-shell/extensions/"
+set -euo pipefail
 
-EXTENSION_PATH=${GNOME_EXT_USER_PATH}${EXTENSION_NAME}
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
-SCRIPT_DIR=$(dirname $0)
-ROOT_DIR=${SCRIPT_DIR}/..
-TARGET_LINE=$1
+TARGET_LINE="${1:-gnome45}"
 
-if [[ -z "${TARGET_LINE}" || "${TARGET_LINE}" == "auto" ]]; then
-    GNOME_MAJOR_VERSION=$(gnome-shell --version | grep -oE '[0-9]+' | head -n 1)
-    if [[ ${GNOME_MAJOR_VERSION} -ge 45 ]]; then
-        TARGET_LINE="gnome45"
-    else
-        TARGET_LINE="legacy"
-    fi
-fi
+UUID="notification-position@drugo.dev"
 
-SOURCE_PATH=${ROOT_DIR}/src/${TARGET_LINE}
+SOURCE_PATH="${ROOT_DIR}/src/${TARGET_LINE}"
+
+EXTENSION_PATH="${HOME}/.local/share/gnome-shell/extensions/${UUID}"
+
+echo "Deploying '${TARGET_LINE}' extension..."
+echo "Source: ${SOURCE_PATH}"
+echo "Target: ${EXTENSION_PATH}"
 
 if [[ ! -d "${SOURCE_PATH}" ]]; then
-    echo "Unknown extension line '${TARGET_LINE}'. Use 'legacy', 'gnome45' or 'auto'."
-    exit 1
+  echo "ERROR: Source path does not exist:"
+  echo "  ${SOURCE_PATH}"
+  exit 1
 fi
 
-# Abort if error
-set -e
+if [[ ! -d "${ROOT_DIR}/schemas" ]]; then
+  echo "ERROR: Shared schemas directory not found:"
+  echo "  ${ROOT_DIR}/schemas"
+  exit 1
+fi
 
-# Make sure extension folder exists
-echo "Making sure ${EXTENSION_PATH} exists"
-mkdir -p ${EXTENSION_PATH}
+mkdir -p "${EXTENSION_PATH}"
 
-echo "Removing whatever is there"
-rm -r ${EXTENSION_PATH}/* | true
+rm -rf "${EXTENSION_PATH:?}"/*
 
-echo "Compiling schemas"
-glib-compile-schemas ${SOURCE_PATH}/schemas
+echo "Copying extension files..."
+cp -r "${SOURCE_PATH}/"* "${EXTENSION_PATH}/"
 
-echo "Files to copy:"
-ls ${SOURCE_PATH}
+echo "Copying shared schemas..."
+cp -r "${ROOT_DIR}/schemas" "${EXTENSION_PATH}/"
 
-# Copy updated files to installation location
-echo "Copying files"
-cp -r ${SOURCE_PATH}/* ${EXTENSION_PATH}/
+echo "Compiling schemas..."
+glib-compile-schemas "${EXTENSION_PATH}/schemas"
 
-echo "Files copied to ${EXTENSION_PATH}"
-echo ""
-echo "Restart Gnome Shell with ALT+F2, type 'r' and hit ENTER"
-echo ""
+echo "Deployment completed successfully."
+echo
+echo "Restart GNOME Shell:"
+echo "  - X11: Alt+F2 -> r"
+echo "  - Wayland: logout/login"
