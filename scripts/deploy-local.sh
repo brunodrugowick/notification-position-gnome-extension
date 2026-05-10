@@ -1,34 +1,49 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-EXTENSION_NAME="notification-position@drugo.dev"
-GNOME_EXT_USER_PATH=$HOME"/.local/share/gnome-shell/extensions/"
+set -euo pipefail
 
-EXTENSION_PATH=${GNOME_EXT_USER_PATH}${EXTENSION_NAME}
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
-SCRIPT_DIR=$(dirname $0)
+TARGET_LINE="${1:-gnome45}"
 
-# Abort if error
-set -e
+UUID="notification-position@drugo.dev"
 
-# Make sure extension folder exists
-echo "Making sure ${EXTENSION_PATH} exists"
-mkdir -p ${EXTENSION_PATH}
+SOURCE_PATH="${ROOT_DIR}/src/${TARGET_LINE}"
 
-echo "Removing whatever is there"
-rm -r ${EXTENSION_PATH}/* | true
+EXTENSION_PATH="${HOME}/.local/share/gnome-shell/extensions/${UUID}"
 
-echo "Compiling schemas"
-glib-compile-schemas ${SCRIPT_DIR}/../schemas
+echo "Deploying '${TARGET_LINE}' extension..."
+echo "Source: ${SOURCE_PATH}"
+echo "Target: ${EXTENSION_PATH}"
 
-echo "Files to copy:"
-ls ${SCRIPT_DIR}/../src/
+if [[ ! -d "${SOURCE_PATH}" ]]; then
+  echo "ERROR: Source path does not exist:"
+  echo "  ${SOURCE_PATH}"
+  exit 1
+fi
 
-# Copy updated files to installation location
-echo "Copying files"
-cp -r ${SCRIPT_DIR}/../src/* ${EXTENSION_PATH}/
-cp -r ${SCRIPT_DIR}/../schemas ${EXTENSION_PATH}/
+if [[ ! -d "${ROOT_DIR}/schemas" ]]; then
+  echo "ERROR: Shared schemas directory not found:"
+  echo "  ${ROOT_DIR}/schemas"
+  exit 1
+fi
 
-echo "Files copied to ${EXTENSION_PATH}"
-echo ""
-echo "Restart Gnome Shell with ALT+F2, type 'r' and hit ENTER"
-echo ""
+mkdir -p "${EXTENSION_PATH}"
+
+rm -rf "${EXTENSION_PATH:?}"/*
+
+echo "Copying extension files..."
+cp -r "${SOURCE_PATH}/"* "${EXTENSION_PATH}/"
+
+echo "Copying shared schemas..."
+cp -r "${ROOT_DIR}/schemas" "${EXTENSION_PATH}/"
+
+echo "Compiling schemas..."
+glib-compile-schemas "${EXTENSION_PATH}/schemas"
+
+echo "Deployment completed successfully."
+echo
+echo "Restart GNOME Shell:"
+echo "  - X11: Alt+F2 -> r"
+echo "  - Wayland: logout/login"

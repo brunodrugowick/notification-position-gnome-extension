@@ -3,11 +3,11 @@
 add_gnome_support() {
     echo "Adding support to Gnome version" $1
     cd $ROOT_PROJECT_DIR
-    cat src/metadata.json \
+    cat src/gnome45/metadata.json \
         | jq --arg version "$1" '."shell-version" += [$version]' \
         | jq --arg version "$1" '.version = $version' \
-        > src/metadata.json.tmp # it fails if I write directly to the same file
-    mv src/metadata.json.tmp src/metadata.json
+        > src/gnome45/metadata.json.tmp # it fails if I write directly to the same file
+    mv src/gnome45/metadata.json.tmp src/gnome45/metadata.json
 
     sed -i '7 i ## [Autoupdate]\n### Added\n- Automatically added support to new Gnome version\n\n' CHANGELOG.md
     echo $1 > $ROOT_PROJECT_DIR/CURRENT_SUPPORTED_GNOME_VERSION
@@ -38,4 +38,3 @@ for GNOME_TAG in $(git tag -l); do
         echo "Ignored tag -->" $GNOME_TAG
     fi
 done
-

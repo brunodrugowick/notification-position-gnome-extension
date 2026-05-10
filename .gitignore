@@ -1,2 +1,4 @@
 *.patch
 *.idea
+**/gschemas.compiled
+build/

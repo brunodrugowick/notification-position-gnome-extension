@@ -1,14 +1,58 @@
-name: Generate artifact
+name: Generate extension artifacts
 
 on:
   workflow_dispatch:
-        
-jobs: 
-  upload-artifact:
-    name: "Upload artifact"
+  push:
+    branches:
+      - main
+
+jobs:
+  package:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        target:
+          - gnome45
+          - legacy
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/upload-artifact@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libglib2.0-bin \
+            zip
+
+      - name: Prepare build directory
+        run: |
+          mkdir -p build/${{ matrix.target }}
+
+      - name: Copy extension files
+        run: |
+          cp -r src/${{ matrix.target }}/* build/${{ matrix.target }}/
+
+      - name: Copy shared schemas
+        run: |
+          cp -r schemas build/${{ matrix.target }}/
+
+      - name: Compile schemas
+        run: |
+          glib-compile-schemas build/${{ matrix.target }}/schemas
+
+      - name: Create ZIP
+        run: |
+          cd build/${{ matrix.target }}
+
+          zip -r \
+            ../../notification-position-${{ matrix.target }}.zip \
+            .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: src/
+          name: notification-position-${{ matrix.target }}
+          path: notification-position-${{ matrix.target }}.zip

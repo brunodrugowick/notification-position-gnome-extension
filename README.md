@@ -14,6 +14,15 @@ Code focuses on being AS SIMPLE AS POSSIBLE to do JUST THAT!
 
 The extension now adds a simple menu to the top panel so you can switch the banner position quickly and preview it with a sample notification.
 
+# Compatibility
+
+The repository has two extension lines because GNOME 45 changed extension loading to JavaScript modules:
+
+- `src/gnome45`: GNOME Shell 45 and newer
+- `src/legacy`: GNOME Shell 44 and older
+
+Both lines provide the top-panel menu. Upload them as separate artifacts with the same UUID and different `shell-version` ranges, so extensions.gnome.org can serve the package that matches the user's GNOME Shell version.
+
 # Thanks to
 
 I tried to find an extension to solve my problem and ended up find [this](https://extensions.gnome.org/extension/1568/notification-banner-positionselenium-h/).
@@ -27,7 +36,7 @@ I decided to improve but couldn't find the extension's repository, so I created 
 
 - Mind the CHANGELOG.md file.
 - If only supporting a new Gnome version, there's an automation that might take care of it automatically.
-    - If you still want to make a PR, please, match the `version` attribute to the version you're trying to support in `./src/metadata.json`.
+    - If you still want to make a PR, please, match the `version` attribute to the version you're trying to support in `./src/gnome45/metadata.json`.
 
 # Deployment to extensions.gnome.org
 
