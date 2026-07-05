@@ -2,14 +2,15 @@
   "uuid": "notification-position@drugo.dev",
   "name": "Notification Banner Position",
   "description": "Changes the notification banner position with a quick menu in the top panel.",
-  "version": "53",
+  "version": "51",
   "shell-version": [
     "45",
     "46",
     "47",
     "48",
     "49",
-    "50"
+    "50",
+    "51"
   ],
   "url": "https://github.com/brunodrugowick/notification-position-gnome-extension",
   "settings-schema": "org.gnome.shell.extensions.notification-position"
