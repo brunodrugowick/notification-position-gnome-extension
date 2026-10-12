@@ -115,12 +115,8 @@ export default class NotificationPosition extends Extension {
         super(metadata);
         this._originalBannerAlignment = Main.messageTray.bannerAlignment;
         this._originalBannerBinAlignment = this._getBannerBin()?.y_align ?? Clutter.ActorAlign.START;
-        const bannerBin = this._getBannerBin();
-        this._originalMarginTop = bannerBin?.margin_top ?? 0;
-        this._originalMarginBottom = bannerBin?.margin_bottom ?? 0;
-        this._originalMarginLeft = bannerBin?.margin_left ?? 0;
-        this._originalMarginRight = bannerBin?.margin_right ?? 0;
-        
+        this._originalBannerBinStyle = null;
+
         this._currentPosition = 'top-right';
         this._indicator = null;
         this._settings = null;
@@ -140,10 +136,7 @@ export default class NotificationPosition extends Extension {
         const bannerBin = this._getBannerBin();
         if (bannerBin) {
             bannerBin.y_align = this._originalBannerBinAlignment;
-            bannerBin.margin_top = this._originalMarginTop;
-            bannerBin.margin_bottom = this._originalMarginBottom;
-            bannerBin.margin_left = this._originalMarginLeft;
-            bannerBin.margin_right = this._originalMarginRight;
+            bannerBin.set_style(this._originalBannerBinStyle);
         }
     }
 
@@ -161,19 +154,19 @@ export default class NotificationPosition extends Extension {
             const verticalMargin = this._settings.get_int('vertical-margin');
             const SIDE_MARGIN = 20;
 
-            bannerBin.margin_left = SIDE_MARGIN;
-            bannerBin.margin_right = SIDE_MARGIN;
-            
-            if (position.yAlign === Clutter.ActorAlign.START) {
-                bannerBin.margin_top = verticalMargin;
-                bannerBin.margin_bottom = 0;
-            } else if (position.yAlign === Clutter.ActorAlign.END) {
-                bannerBin.margin_top = 0;
-                bannerBin.margin_bottom = verticalMargin;
-            } else {
-                bannerBin.margin_top = verticalMargin;
-                bannerBin.margin_bottom = verticalMargin;
-            }
+            let marginTop = verticalMargin;
+            let marginBottom = verticalMargin;
+            if (position.yAlign === Clutter.ActorAlign.START)
+                marginBottom = 0;
+            else if (position.yAlign === Clutter.ActorAlign.END)
+                marginTop = 0;
+
+            // St re-applies CSS margins to the actor on every style change
+            // (hover, theme or dark-style switch, showing the banner again),
+            // which resets margins set through the margin_* properties.
+            // An inline style is part of the CSS, so it survives that.
+            bannerBin.set_style(
+                `margin: ${marginTop}px ${SIDE_MARGIN}px ${marginBottom}px ${SIDE_MARGIN}px;`);
         }
 
         this._currentPosition = position.id;
@@ -235,6 +228,7 @@ export default class NotificationPosition extends Extension {
     // This is when you setup any UI for your extension, change existing widgets,
     // connect signals or modify GNOME Shell's behaviour.
     enable() {
+        this._originalBannerBinStyle = this._getBannerBin()?.get_style() ?? null;
         this._settings = this.getSettings();
         this._settingsChangedId = this._settings.connect('changed::show-indicator', () => {
             this._syncIndicator();

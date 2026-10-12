@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- The vertical and side margins of the banner are no longer reset to 0 on hover, after a shell style change or on the first banner after login ([#36](https://github.com/brunodrugowick/notification-position-gnome-extension/issues/36))
+
 ## [Autoupdate]
 ### Added
 - Automatically added support to new Gnome version
